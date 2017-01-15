@@ -2,16 +2,19 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 public class findPasswordofZip {
+	connectionThread parent;
 	private long progressVar = 0;
 	private long totalIterations = 0;
 	private long showProgress = 0;
+	private int updateInterval = 50;
 	bruteforceThread threads[];
 	boolean passFound = false;
 	
-	public findPasswordofZip(String filePath, String range, long startIndex, long endIndex, 
+	public findPasswordofZip(connectionThread parent, String filePath, String range, long startIndex, long endIndex, 
 			int minLength, int maxLength){
+		this.parent = parent;
 		this.totalIterations = endIndex - startIndex;
-		this.showProgress = this.totalIterations / 50;
+		this.showProgress = this.totalIterations / updateInterval;
 		
 		threads = new bruteforceThread[Runtime.getRuntime().availableProcessors()];
 		long portions = (endIndex - startIndex) / threads.length;
@@ -22,25 +25,25 @@ public class findPasswordofZip {
 			if(i == threads.length - 1)
 				end++;
 			
-			System.out.println("Thread Creating " + i + ": start[" + start + "] end[" + end + "]");
+			parent.parent.Log("Cracking Thread Creating " + i + ": start[" + start + "] end[" + end + "]");
 			threads[i] = new bruteforceThread(this, filePath, range, start, end, minLength, maxLength);
 		}
 	}
 	
 	public void start() throws InterruptedException{
-		System.out.println("Starting Cracking!");
+		parent.parent.Log("Starting Cracking!");
 		
 		long startTime = System.currentTimeMillis();
 		
 		for(int i = 0; i < threads.length; i++){
 			if(!threads[i].isAlive()){
 				threads[i].start();
-				System.out.println("Thread started: " + i);
+				parent.parent.Log("Cracking thread started: " + i);
 			}
 		}
 		for(int i = 0; i < threads.length; i++){
 				threads[i].join();
-				System.out.println("Thread Ended: " + i);
+				parent.parent.Log("Cracking thread Ended: " + i);
 		}
 		
 //		for(int i = 0; i < threads.length; i++){
@@ -51,21 +54,24 @@ public class findPasswordofZip {
 //			}
 //		}
 		
-		if(!this.passFound)
-			System.out.println("Password not found!");
+		if(!this.passFound){
+			parent.parent.Log("Password not found!");
+			parent.sendMessage(new Message("passwordNotFound", ""));
+		}
 		
-		System.out.println("Ending Cracking!");
+		parent.parent.Log("Ending Cracking!");
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
-		System.out.println("Total time taken: " + ((double)totalTime/1000) + "sec");
+		parent.parent.Log("Total time taken: " + ((double)totalTime/1000) + "sec");
 	}
 	
 	public void updateProgress(){
 		this.progressVar++;
 		if(this.progressVar % this.showProgress == 0){
-			System.out.println("Completed " + this.progressVar + " iterations. (" + 
+			parent.parent.Log("Completed " + this.progressVar + " iterations. (" + 
 					(int)(((double)this.progressVar / (double)this.totalIterations) * 100) + "%)");
+//			parent.sendMessage(new Message("updateOfCracking", "" + progressVar));
 		}
 	}
 }
@@ -84,8 +90,8 @@ class bruteforceThread extends Thread{
 		try {
 			zipFile = new ZipFile(filePath);
 		} catch (ZipException e) {
-			System.out.println("Error: File not found!");
-			e.printStackTrace();
+			parent.parent.parent.Log("Error: File not found!");
+			parent.parent.parent.Log("Error log: " + e.getMessage());
 		}
 	}
 
@@ -96,6 +102,7 @@ class bruteforceThread extends Thread{
 			parent.updateProgress();
 			try{
 				zipFile.setPassword(bf.getNext());
+				//parent.parent.parent.Log(bf.getCurrent());
 				//System.out.println(bf.getCurrent());
 		    	zipFile.extractAll("temp/");
 
@@ -108,12 +115,13 @@ class bruteforceThread extends Thread{
 				}
 			}
 		}
+		parent.parent.parent.Log("Ending Thread!");
 		this.interrupt();
-		System.out.println("Ending Thread!");
 	}
 	
 	public void passwordFound(String password){
-		System.out.println("Password Found: " + password);
+		parent.parent.parent.Log("Password Found: " + password);
+		parent.parent.sendMessage(new Message("passwordFound", password));
 		parent.passFound = true;
 		
 		for(int i = 0; i < parent.threads.length; i++)

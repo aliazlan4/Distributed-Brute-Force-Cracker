@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.text.DefaultCaret;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -17,8 +18,8 @@ import java.util.Date;
 public class mainFrame extends JFrame implements ActionListener{
 	private JButton startServerButton = new JButton("Start Server");
 	private JTextArea screen = new JTextArea();
-	private JLabel totalNodes = new JLabel("Total Nodes: 0");
-	private JLabel totalCores = new JLabel("Total Cores: 0");
+	private JLabel totalNodesLabel = new JLabel("Total Nodes: 0");
+	private JLabel totalCoresLabel = new JLabel("Total Cores: 0");
 	private JPanel northPanel = new JPanel();
 	private JScrollPane scroll;
 	
@@ -37,8 +38,8 @@ public class mainFrame extends JFrame implements ActionListener{
 	
 	void initComponents(){
 		startServerButton.setFont(new Font("Centuary Gothic", Font.PLAIN, 14));
-		totalCores.setFont(new Font("Centuary Gothic", Font.PLAIN, 14));
-		totalNodes.setFont(new Font("Centuary Gothic", Font.PLAIN, 14));
+		totalCoresLabel.setFont(new Font("Centuary Gothic", Font.PLAIN, 14));
+		totalNodesLabel.setFont(new Font("Centuary Gothic", Font.PLAIN, 14));
 		screen.setFont(new Font("Centuary Gothic", Font.PLAIN, 14));
 		
 		startServerButton.setSize(70, 40);
@@ -46,23 +47,25 @@ public class mainFrame extends JFrame implements ActionListener{
 		
 		screen.setEditable(false);
 		screen.setLineWrap(true);
+		DefaultCaret caret = (DefaultCaret)screen.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		scroll = new JScrollPane();
 		scroll.setViewportView(screen);
 		
 		northPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 80, 5));
-		northPanel.add(totalNodes);
-		northPanel.add(totalCores);
+		northPanel.add(totalNodesLabel);
+		northPanel.add(totalCoresLabel);
 		northPanel.add(startServerButton);
 		this.add(northPanel, BorderLayout.NORTH);
 		this.add(scroll, BorderLayout.CENTER);
 	}
 	
 	void updateTotalNodes(int nodes){
-		this.totalNodes.setText("Total Nodes: " + nodes);
+		this.totalNodesLabel.setText("Total Nodes: " + nodes);
 	}
 	
 	void updateTotalCores(int cores){
-		this.totalCores.setText("Total Cores: " + cores);
+		this.totalCoresLabel.setText("Total Cores: " + cores);
 	}
 	
 	void serverStarted(){

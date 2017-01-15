@@ -12,6 +12,8 @@ public class serverSocketThread extends Thread{
 	private ServerSocket server = null;
 	public int total_cores = 0;
 	
+	crackingController CC = null;
+	
 	List<clientThread> clients;
 	
 	private int serverPort = 9999;
@@ -65,57 +67,86 @@ public class serverSocketThread extends Thread{
 		parent.Log("Client Accepted!");
 		clients.add(new clientThread(this, socket));
 	}
-}
-
-class clientThread extends Thread{
-	serverSocketThread parent;
-	public int cores;
-	private Socket connectionVar;
-	private ObjectInputStream In;
-	private ObjectOutputStream Out;
-
-	public clientThread(serverSocketThread parent, Socket socket) {
-		this.parent = parent;
-		this.connectionVar = socket;
+	
+	public void stopThread(clientThread thread){
+		clients.remove(thread);
+		updateCoresNodes();
+		
 		try {
-			Out = new ObjectOutputStream(connectionVar.getOutputStream());
-			Out.flush();
-			In = new ObjectInputStream(connectionVar.getInputStream());
-			
-			this.start();
+			thread.In.close();
+			thread.Out.close();
+			thread.connectionVar.close();
+			parent.Log("Client removed!");
+			thread.interrupt();
+			thread.stop();
 		} catch (Exception e) {
-			parent.parent.Log("Error in accepting client!");
-			parent.parent.Log("Error log: " + e.getMessage());
+			parent.Log("Error in stopping client!");
+			parent.Log("Error log: " + e.getMessage());
 		}
 	}
 	
-	public void run(){
-		while (!this.isInterrupted()){  
-			try{
-				In.readObject();
+	public void updateCoresNodes(){
+		parent.updateTotalNodes(clients.size());
+		parent.updateTotalCores(getTotalCores());
+		broadcastMessage(new Message("update", clients.size() + ";" + getTotalCores()));
+	}
+	
+	public int getTotalCores(){
+		int total = 0;
+		for(int i = 0; i < clients.size(); i++)
+			total += clients.get(i).getCores();
+		return total;
+	}
+	
+	public void broadcastMessage(Message msg){
+		for(int i = 0; i < clients.size(); i++)
+			clients.get(i).sendMessage(msg);
+	}
+	
+	public void requestToCrackFile(String filePath, String characters, String passLength){
+		
+	}
+	
+	public void messageHandler(clientThread sender, Message msg){
+		String msgType = msg.type;
+		String msgContent = msg.content;
+		
+		if(msgType.equals("coresUpdate")){
+			sender.setCores(Integer.parseInt(msgContent));
+			updateCoresNodes();
+		}
+		
+		else if(msgType.equals("requestToCrackFile")){
+			if(CC == null){
+				String[] temp = msgContent.split(";");
+				CC = new crackingController(this, sender, temp[0], temp[1], temp[2]);
+				CC.start();
 			}
-			catch(Exception e){
-				if(!this.isInterrupted()){
-					parent.parent.Log("Error in recieving message from client!");
-					parent.parent.Log("Error log: " + e.getMessage());
-					stopConnection();
-				}
+			else if(!CC.isAlive()){
+				String[] temp = msgContent.split(";");
+				CC = new crackingController(this, sender, temp[0], temp[1], temp[2]);
+				CC.start();
+			}
+			else{
+				sender.sendMessage(new Message("updateOnScreen", "Error: Another cracking is already in process!"));
 			}
 		}
-	}
-
-	private void stopConnection() {
-		parent.clients.remove(this);
-		try {
-			In.close();
-			Out.close();
-			connectionVar.close();
-			parent.parent.Log("Client removed!");
-			this.interrupt();
-			this.stop();
-		} catch (Exception e) {
-			parent.parent.Log("Error in stopping client!");
-			parent.parent.Log("Error log: " + e.getMessage());
+		
+		else if(msgType.equals("startingCracking")){
+			parent.Log("A client has started cracking!");
+		}
+		
+		else if(msgType.equals("updateOfCracking")){
+			//parent.Log("Cracking ...");
+			CC.requester.sendMessage(new Message("updateOfCracking", ""));
+		}
+		
+		else if(msgType.equals("passwordNotFound")){
+			CC.passwordNotFound(sender);
+		}
+		
+		else if(msgType.equals("passwordFound")){
+			CC.passwordFound(msgContent);
 		}
 	}
 }
