@@ -1,7 +1,10 @@
+package Server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
+import Common.Message;
 
 class clientThread extends Thread{
 	serverSocketThread parent;

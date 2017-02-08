@@ -1,24 +1,25 @@
+package Client;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+import Common.Message;
+
 public class connectionThread extends Thread {
-	mainFrame parent;
+	mainFrameClient parent;
 	Socket connectionVar;
 	public ObjectInputStream In;
 	public ObjectOutputStream Out;
 	public String serverIP;
 	public int serverPort;
 	
-	private String storagePath = "storage/";
+	private String storagePath = "client_storage/";
 	
-	public connectionThread(mainFrame parent, String serverIP, int serverPort){
+	public connectionThread(mainFrameClient parent, String serverIP, int serverPort){
 		this.parent = parent;
 		this.serverIP = serverIP;
 		this.serverPort = serverPort;

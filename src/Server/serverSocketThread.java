@@ -1,3 +1,4 @@
+package Server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -7,8 +8,10 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import Common.Message;
+
 public class serverSocketThread extends Thread{
-	public mainFrame parent;
+	public mainFrameServer parent;
 	private ServerSocket server = null;
 	public int total_cores = 0;
 	
@@ -18,7 +21,7 @@ public class serverSocketThread extends Thread{
 	
 	private int serverPort = 9999;
 	
-	public serverSocketThread(mainFrame parent){
+	public serverSocketThread(mainFrameServer parent){
 		this.parent = parent;
 		
 		parent.Log("Starting Server!");

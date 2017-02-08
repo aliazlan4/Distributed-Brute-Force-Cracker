@@ -1,3 +1,4 @@
+package Server;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -15,7 +16,7 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class mainFrame extends JFrame implements ActionListener{
+public class mainFrameServer extends JFrame implements ActionListener{
 	private JButton startServerButton = new JButton("Start Server");
 	private JTextArea screen = new JTextArea();
 	private JLabel totalNodesLabel = new JLabel("Total Nodes: 0");
@@ -26,7 +27,7 @@ public class mainFrame extends JFrame implements ActionListener{
 	private serverSocketThread socketServer;
 	
 	
-	public mainFrame(){
+	public mainFrameServer(){
 		this.setTitle("Distributed Password Cracker Server");
 		this.setSize(700, 500);
 		this.setLayout(new BorderLayout());		

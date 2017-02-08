@@ -1,3 +1,4 @@
+package Client;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -17,7 +18,7 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class mainFrame extends JFrame implements ActionListener{
+public class mainFrameClient extends JFrame implements ActionListener{
 	private JButton connectToServerButton = new JButton("Connect");
 	private JTextField serverIP = new JTextField("127.0.0.1");
 	private JTextField serverPort = new JTextField("9999");
@@ -44,7 +45,7 @@ public class mainFrame extends JFrame implements ActionListener{
 	connectionThread connThread;
 	
 	
-	public mainFrame(){
+	public mainFrameClient(){
 		this.setTitle("Distributed Password Cracker Client");
 		this.setSize(700, 500);
 		this.setLayout(new BorderLayout());		

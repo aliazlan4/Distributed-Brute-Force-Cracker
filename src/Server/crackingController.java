@@ -1,6 +1,7 @@
+package Server;
 import java.io.File;
 
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
+import Common.Message;
 
 public class crackingController extends Thread{
 	serverSocketThread parent;
@@ -14,7 +15,7 @@ public class crackingController extends Thread{
 	public long doneCombinations = 0;
 	int clientsStopped = 0;
 	
-	private String storagePath = "storage/";
+	private String storagePath = "server_storage/";
 	
 	public crackingController(serverSocketThread parent, clientThread requester, String filePath, String characters, String passLength){
 		this.parent = parent;

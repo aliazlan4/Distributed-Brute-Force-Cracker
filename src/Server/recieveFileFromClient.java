@@ -1,3 +1,4 @@
+package Server;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class recieveFileFromClient extends Thread{
 	private FileOutputStream Out;
 	private InputStream In;
 	
-	private String storagePath = "storage/";
+	private String storagePath = "server_storage/";
 	
 	public recieveFileFromClient(crackingController parent, String filePath){
 		this.parent = parent;

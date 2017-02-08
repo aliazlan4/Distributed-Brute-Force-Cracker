@@ -1,3 +1,4 @@
+package Client;
 public class BruteForce {
 	private String currentString = "";
 	private long currentIndex = -1;
